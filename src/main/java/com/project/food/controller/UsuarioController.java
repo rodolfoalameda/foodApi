@@ -3,7 +3,6 @@ package com.project.food.controller;
 import com.project.food.controller.assembler.GrupoDTOAssembler;
 import com.project.food.controller.assembler.UsuarioDTOAssembler;
 import com.project.food.controller.assembler.UsuarioInputDisassembler;
-import com.project.food.domain.model.Grupo;
 import com.project.food.domain.model.Usuario;
 import com.project.food.domain.model.dtos.GrupoDTO;
 import com.project.food.domain.model.dtos.UsuarioDTO;
@@ -15,6 +14,9 @@ import com.project.food.domain.service.UsuarioService;
 import com.project.food.repository.GrupoRepository;
 import com.project.food.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,9 +49,10 @@ public class UsuarioController {
     private GrupoDTOAssembler grupoDTOAssembler;
 
     @GetMapping
-    public List<UsuarioDTO> findAll() {
-        List<Usuario> list = usuarioRepository.findAll();
-        return usuarioDTOAssembler.fromDomainsToDtos(list);
+    public Page<UsuarioDTO> findAll(Pageable pageable) {
+        Page<Usuario> usuarioPage = usuarioRepository.findAll(pageable);
+        List<UsuarioDTO> usuarioDTOList = usuarioDTOAssembler.fromDomainsToDtos(usuarioPage.getContent());
+        return new PageImpl<>(usuarioDTOList, pageable, usuarioPage.getTotalElements());
     }
 
     @GetMapping("/{id}")
